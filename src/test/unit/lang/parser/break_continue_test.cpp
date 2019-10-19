@@ -2,13 +2,11 @@
 #include <test/unit/lang/utility.hpp>
 #include <exception>
 
-TEST(lang_parser, break_continue_parsable) {
-  test_parsable("break-continue");
-}
+TEST(lang_parser, break_continue_parsable) { test_parsable("break-continue"); }
 
 void test_bad_break(const std::string& model_name) {
   test_throws(model_name,
-              "ERROR: break and continue statements are only allowed"
+              "Break and continue statements are only allowed"
               " in the body of a for-loop or while-loop.");
 }
 
@@ -27,4 +25,3 @@ TEST(lang_parser, break_continue_bad_break1) {
   test_bad_break("break7");
   test_bad_break("break8");
 }
-

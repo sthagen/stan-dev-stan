@@ -4,22 +4,20 @@
 
 TEST(langParserStatement2Grammar, addConditionalCondition) {
   test_parsable("conditional_condition_good");
-  test_throws("conditional_condition_bad_1",
-              "conditions in if-else");
-  test_throws("conditional_condition_bad_2",
-              "conditions in if-else");
+  test_throws("conditional_condition_bad_1", "Conditions in if-else");
+  test_throws("conditional_condition_bad_2", "Conditions in if-else");
 }
 
 TEST(langParserStatementGrammar, validateIntExpr2) {
   test_parsable("validate_int_expr2_good");
   test_throws("validate_int_expr2_bad1",
-              "loop must be over container or range");
+              "Loop must be over container or range");
   test_throws("validate_int_expr2_bad2",
-              "loop must be over container or range");
+              "Loop must be over container or range");
   test_throws("validate_int_expr2_bad3",
-              "dimension declaration requires expression denoting integer");
+              "Dimension declaration requires expression denoting integer");
   test_throws("validate_int_expr2_bad4",
-              "loop must be over container or range");
+              "Loop must be over container or range");
 }
 
 TEST(langParserStatementGrammar, validateAllowSample) {
@@ -37,44 +35,47 @@ TEST(langParserStatementGrammar, targetIncrement) {
 
 TEST(langParserStatementGrammar, targetReserved) {
   test_throws("target-reserved",
-              "variable identifier (name) may not be reserved word");
-  test_throws("target-reserved",
-              "found identifier=target");
+              "Variable identifier (name) may not be reserved word");
+  test_throws("target-reserved", "found identifier=target");
 }
 
 TEST(langParserStatementGrammar, deprecateIncrementLogProb) {
   test_warning("deprecate-increment-log-prob",
-               "Warning (non-fatal): increment_log_prob(...);"
+               "Info: increment_log_prob(...);"
                " is deprecated and will be removed in the future.");
-  test_warning("deprecate-increment-log-prob",
-               "  Use target += ...; instead.");
+  test_warning("deprecate-increment-log-prob", "  Use target += ...; instead.");
 }
 
 TEST(langParserStatementGrammarDef, jacobianAdjustmentWarning) {
   test_parsable("validate_jacobian_warning_good");
-  test_warning("validate_jacobian_warning1",
-               "you need to include a target += statement with"
-               " the log absolute determinant of the Jacobian of the transform.");
-  test_warning("validate_jacobian_warning2",
-               "you need to include a target += statement with"
-               " the log absolute determinant of the Jacobian of the transform.");
-  test_warning("validate_jacobian_warning3",
-               "you need to include a target += statement with"
-               " the log absolute determinant of the Jacobian of the transform.");
-  test_warning("validate_jacobian_warning4",
-               "you need to include a target += statement with"
-               " the log absolute determinant of the Jacobian of the transform.");
-  test_warning("validate_jacobian_warning5",
-               "you need to include a target += statement with"
-               " the log absolute determinant of the Jacobian of the transform.");
-  test_warning("validate_jacobian_warning6",
-               "you need to include a target += statement with"
-               " the log absolute determinant of the Jacobian of the transform.");
+  test_warning(
+      "validate_jacobian_warning1",
+      "you need to include a target += statement with"
+      " the log absolute determinant of the Jacobian of the transform.");
+  test_warning(
+      "validate_jacobian_warning2",
+      "you need to include a target += statement with"
+      " the log absolute determinant of the Jacobian of the transform.");
+  test_warning(
+      "validate_jacobian_warning3",
+      "you need to include a target += statement with"
+      " the log absolute determinant of the Jacobian of the transform.");
+  test_warning(
+      "validate_jacobian_warning4",
+      "you need to include a target += statement with"
+      " the log absolute determinant of the Jacobian of the transform.");
+  test_warning(
+      "validate_jacobian_warning5",
+      "you need to include a target += statement with"
+      " the log absolute determinant of the Jacobian of the transform.");
+  test_warning(
+      "validate_jacobian_warning6",
+      "you need to include a target += statement with"
+      " the log absolute determinant of the Jacobian of the transform.");
 }
 
 TEST(langParserStatementGrammarDef, jacobianUserFacing) {
-  test_warning("validate_jacobian_warning_user",
-               "exp(y[1]) ~ normal(...)");
+  test_warning("validate_jacobian_warning_user", "exp(y[1]) ~ normal(...)");
 }
 
 TEST(langParserStatementGrammarDef, comparisonsInBoundsTest) {
@@ -84,17 +85,13 @@ TEST(langParserStatementGrammarDef, comparisonsInBoundsTest) {
 }
 
 TEST(langParserStatementGrammar, validateAssignmentTypes) {
-  test_throws("bad_var_assignment_type1",
-              "mismatch in assignment");
-  test_throws("bad_var_assignment_type2",
-              "mismatch in assignment");
-  test_throws("bad_var_assignment_vec_arr",
-              "mismatch in assignment");
+  test_throws("bad_var_assignment_type1", "mismatch in assignment");
+  test_throws("bad_var_assignment_type2", "mismatch in assignment");
+  test_throws("bad_var_assignment_vec_arr", "mismatch in assignment");
 }
 
 TEST(langParserStatementGrammar, assignRealToIntMessage) {
-  test_throws("assign_real_to_int",
-              "Base type mismatch in assignment");
+  test_throws("assign_real_to_int", "Base type mismatch in assignment");
 }
 
 TEST(langParserStatementGrammar, useCdfWithSamplingNotation) {
@@ -109,12 +106,9 @@ TEST(langParserStatementGrammar, useCdfWithSamplingNotation) {
 }
 
 TEST(langParserStatementGrammar, targetFunGetLpDeprecated) {
-  test_warning("get-lp-deprecate", 
-               "Warning (non-fatal): get_lp() function deprecated.");
-  test_warning("get-lp-deprecate", 
-               "  It will be removed in a future release.");
-  test_warning("get-lp-deprecate", 
-               "  Use target() instead.");
+  test_warning("get-lp-deprecate", "Info: get_lp() function deprecated.");
+  test_warning("get-lp-deprecate", "  It will be removed in a future release.");
+  test_warning("get-lp-deprecate", "  Use target() instead.");
   test_throws("get-lp-target-data",
               "Function target() or functions suffixed with _lp only"
               " allowed in transformed parameter block");
@@ -126,11 +120,9 @@ TEST(langParserStatementGrammar, targetFunGetLpDeprecated) {
 
 TEST(langParserStatementGrammar, removeLpDoubleUnderscore) {
   test_throws("lp-error",
-              "ERROR (fatal):  Use of lp__ is no longer supported.");
+              "Error (fatal):  Use of lp__ is no longer supported.");
   test_throws("lp-error",
               "  Use target += ... statement to increment log density.");
-  test_throws("lp-error",
-              "  Use target() function to get log density.");
 }
 
 TEST(langParserStatementGrammar, plusEqualsGood) {
@@ -163,13 +155,12 @@ TEST(langParserStatementGrammar, eltOpEqualsGood) {
 }
 
 TEST(langParserStatementGrammar, plusEqualsBad) {
-  test_throws("compound-assign/plus_equals_bad_var_lhs","does not exist");
+  test_throws("compound-assign/plus_equals_bad_var_lhs", "does not exist");
   test_throws("compound-assign/plus_equals_bad_var_lhs2",
               "Cannot assign to variable outside of declaration block");
   test_throws("compound-assign/plus_equals_bad_lhs_idxs",
-              "Too many indexes for variable");
-  test_throws("compound-assign/plus_equals_bad_var_rhs",
-              "does not exist");
+              "Left-hand side indexing incompatible with variable");
+  test_throws("compound-assign/plus_equals_bad_var_rhs", "does not exist");
   test_throws("compound-assign/plus_equals_type_mismatch",
               "Cannot apply operator '+='");
   test_throws("compound-assign/plus_equals_type_mismatch2",
@@ -184,8 +175,7 @@ TEST(langParserStatementGrammar, plusEqualsBad) {
               "Cannot apply operator '+='");
   test_throws("compound-assign/plus_equals_row_vec_array",
               "Cannot apply operator '+='");
-  test_throws("compound-assign/plus_equals_bad_init",
-              "PARSER EXPECTED: \";\"");
+  test_throws("compound-assign/plus_equals_bad_init", "PARSER EXPECTED: \";\"");
 }
 
 TEST(langParserStatementGrammar, timesEqualsBad) {
@@ -193,10 +183,28 @@ TEST(langParserStatementGrammar, timesEqualsBad) {
               "Cannot apply operator '*='");
 }
 
-
 TEST(langParserStatementGrammar, eltOpEqualsBad) {
   test_throws("compound-assign/elt_times_equals_prim",
               "Cannot apply element-wise operation to scalar");
   test_throws("compound-assign/elt_divide_equals_prim",
               "Cannot apply element-wise operation to scalar");
+}
+
+TEST(langParserStatementGrammar, noCloseBrace) {
+  test_throws("expect_statement_seq_close_brace", "PARSER EXPECTED: \"}\"");
+}
+
+TEST(langParserStatementGrammar, noCloseBrace_2) {
+  test_throws("expect_statement_seq_close_brace_2", "PARSER EXPECTED: \"}\"");
+}
+
+TEST(langParserStatementGrammar, noCloseBrace_3) {
+  test_throws("expect_statement_seq_close_brace_3",
+              "Unexpected open block, missing close block \"}\""
+              " before keyword");
+}
+
+TEST(langParserStatementGrammar, noCloseBrace_4) {
+  test_throws("expect_statement_seq_close_brace_4",
+              "\'}\' to close variable declarations");
 }
