@@ -92,20 +92,14 @@ int standalone_generate(const Model &model, const Eigen::MatrixXd &draws,
   writer.write_gq_names(model);
 
   boost::ecuyer1988 rng = util::create_rng(seed, 1);
-  std::vector<std::string> param_names;
-  std::vector<std::vector<size_t>> param_dimss;
-  get_model_parameters(model, param_names, param_dimss);
 
-  std::vector<int> dummy_params_i;
   std::vector<double> unconstrained_params_r;
+  std::vector<double> row(draws.cols());
+
   for (size_t i = 0; i < draws.rows(); ++i) {
-    dummy_params_i.clear();
-    unconstrained_params_r.clear();
+    Eigen::Map<Eigen::VectorXd>(&row[0], draws.cols()) = draws.row(i);
     try {
-      stan::io::array_var_context context(param_names, draws.row(i),
-                                          param_dimss);
-      model.transform_inits(context, dummy_params_i, unconstrained_params_r,
-                            &msg);
+      model.unconstrain_array(row, unconstrained_params_r, &msg);
     } catch (const std::exception &e) {
       if (msg.str().length() > 0)
         logger.error(msg);
