@@ -21,7 +21,6 @@ namespace analyze {
  * @return mcse
  */
 inline double mcse_mean(const Eigen::MatrixXd& chains) {
-  const Eigen::Index num_draws = chains.rows();
   if (chains.rows() < 4 || !is_finite_and_varies(chains))
     return std::numeric_limits<double>::quiet_NaN();
 
