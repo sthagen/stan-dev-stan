@@ -334,7 +334,11 @@ class stan_csv_reader {
         for (int col = 0; col < cols; col++) {
           std::getline(ls, line, ',');
           boost::trim(line);
-          std::stringstream(line) >> samples(row, col);
+          try {
+            samples(row, col) = static_cast<double>(std::stold(line));
+          } catch (const std::out_of_range& e) {
+            samples(row, col) = std::numeric_limits<double>::quiet_NaN();
+          }
         }
       }
     }

@@ -604,3 +604,14 @@ TEST_F(StanIoStanCsvReader, variational) {
   ASSERT_EQ(1000, variational.metadata.num_samples);
   ASSERT_EQ(0, variational.adaptation.metric.size());
 }
+
+TEST_F(StanIoStanCsvReader, read_nans) {
+  std::ifstream datagen_stream;
+  datagen_stream.open("src/test/unit/mcmc/test_csv_files/datagen_output.csv",
+                      std::ifstream::in);
+  std::stringstream out;
+  stan::io::stan_csv datagen
+      = stan::io::stan_csv_reader::parse(datagen_stream, &out);
+  datagen_stream.close();
+  ASSERT_TRUE(std::isnan(datagen.samples(0, 2)));
+}
