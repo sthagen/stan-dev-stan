@@ -170,7 +170,7 @@ TEST_F(McmcChains, summary_stats) {
   EXPECT_NEAR(theta_sd_expect, bern_chains.sd("theta"), 1e-5);
 
   double theta_mad_expect = 0.12309;
-  EXPECT_NEAR(theta_mad_expect, bern_chains.max_abs_deviation("theta"), 1e-5);
+  EXPECT_NEAR(theta_mad_expect, bern_chains.med_abs_deviation("theta"), 1e-5);
 
   double theta_mcse_mean_expect = 0.003234;
   EXPECT_NEAR(theta_mcse_mean_expect, bern_chains.mcse_mean("theta"), 1e-4);
@@ -224,6 +224,9 @@ TEST_F(McmcChains, quantile_tests) {
   for (size_t i = 0; i < probs.size(); ++i) {
     EXPECT_TRUE(std::isnan(stepsize_quantiles(i)));
   }
+
+  double stepsize_MAD = datagen_chains.med_abs_deviation("stepsize__");
+  EXPECT_TRUE(std::isnan(stepsize_MAD));
 
   Eigen::VectorXd bad_probs(3);
   bad_probs << 5, 50, 95;
