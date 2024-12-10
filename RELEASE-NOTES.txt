@@ -5,6 +5,21 @@ Note: these are the release notes for the stan-dev/stan repository.
 Further changes may arise at the interface level (stan-dev/{rstan,
 pystan, cmdstan}) and math library level (stan-dev/math).
 
+v2.36.0 (10 December 2024)
+======================================================================
+
+ - Added de/serialization for the `stochastic_row_matrix` and `stochastic_column_matrix` types. (#3298, #3304)
+ - Added de/serialization for the `sum_to_zero_vector` type. (#3308)
+ - Relaxed restrictions on HMC to allow running when a model has no parameters. (#3071, #3303)
+ - Updated `rvalue()` functions that use `multi_index` to return an Eigen expression of multi indexing instead of eagerly creating a new matrix from the indices. (#3250)
+ - Improved error messages when user-specified initializations fail. (#3291)
+ - Fixed progress output formatting being inconsistent for the non-adaptive samplers. (#3296)
+ - Improved parsing of Stan CSV files to allow for getting MCMC sample from fixed_param and samples with saved warmup draws and to be able to correctly get ADVI sample. (#3311)
+ - Improved parsing of Stan CSV files when they contain nan or infinite values. (#3318)
+ - Added a new `stan::mcmc::chainset` object, exposing split-Rhat, split-ESS and Monte Carlo standard error diagnostics. This replaces the `chains<>` object. (#3312, #3313)
+ - Fixed a header include order issue that caused compilation with `-DSTAN_MODEL_FVAR_VAR` to fail for certain models. (#3294)
+ - Removed support for adding makefile variables in `~/.config/stan/make.local`. Use the `make/local` file in the Stan directory instead. (#3295)
+
 v2.35.0 (3 June 2024)
 ======================================================================
 
