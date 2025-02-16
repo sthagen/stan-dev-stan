@@ -516,6 +516,7 @@ pipeline {
         success {
             script {
                 utils.updateUpstream(env,'cmdstan')
+                utils.updateUpstream(env,'rstan')
                 utils.mailBuildResults("SUCCESSFUL")
             }
         }
