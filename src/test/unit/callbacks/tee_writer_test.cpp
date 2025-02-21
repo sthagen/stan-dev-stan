@@ -24,7 +24,7 @@ class StanCallbacksTeeWriter : public ::testing::Test {
       : writer1(), writer2(), tee_writer(writer1, writer2) {}
 
   test::mock_writer writer1, writer2;
-  stan::callbacks::tee_writer tee_writer;
+  stan::callbacks::tee_writer<test::mock_writer, test::mock_writer> tee_writer;
 };
 
 TEST_F(StanCallbacksTeeWriter, names) {

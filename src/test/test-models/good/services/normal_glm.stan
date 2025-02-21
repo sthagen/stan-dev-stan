@@ -23,12 +23,12 @@ parameters {
   real<lower=0> sigma;  // dispersion parameter
 }
 model {
-  // likelihood including constants
-  target += normal_id_glm_lupdf(Y | X, Intercept, b, sigma);
   // priors including constants
   target += normal_lupdf(Intercept | 0, 3);
   target += normal_lupdf(b | 0, 3);
-  target += normal_lupdf(sigma | 1, 2);
+  target += normal_lupdf(sigma | 0, 3);
+  // likelihood including constants
+  target += normal_id_glm_lupdf(Y | X, Intercept, b, sigma);
 }
 
 generated quantities {

@@ -3,6 +3,7 @@
 
 #include <stan/callbacks/interrupt.hpp>
 #include <stan/callbacks/stream_writer.hpp>
+#include <tbb/concurrent_vector.h>
 #include <iostream>
 #include <memory>
 
@@ -16,12 +17,12 @@ struct mock_callback : public stan::callbacks::interrupt {
   void operator()() { n++; }
 };
 
+template <typename T>
 class test_logger : public stan::callbacks::logger {
-  std::unique_ptr<std::ostream> log_;
-
  public:
-  test_logger(std::unique_ptr<std::ostream>&& x) : log_(std::move(x)) {}
-  test_logger() : log_(std::unique_ptr<std::ostream>(nullptr)) {}
+  std::unique_ptr<T> log_;
+  test_logger(std::unique_ptr<T>&& x) : log_(std::move(x)) {}
+  test_logger() : log_(std::unique_ptr<T>(nullptr)) {}
   /**
    * Logs a message with debug log level
    *
@@ -136,17 +137,23 @@ class test_logger : public stan::callbacks::logger {
 /**
  * Writer that stores results in memory.
  */
-class in_memory_writer : public stan::callbacks::stream_writer {
+class in_memory_writer : public stan::callbacks::writer {
  public:
   std::vector<std::string> names_;
   std::vector<std::string> times_;
-  std::vector<std::vector<double>> states_;
-  std::vector<Eigen::VectorXd> eigen_states_;
-  std::vector<std::tuple<Eigen::VectorXd, Eigen::VectorXd>> optim_path_;
-  Eigen::MatrixXd values_;
-  in_memory_writer(std::ostream& stream)
-      : stan::callbacks::stream_writer(stream) {}
-
+  tbb::concurrent_vector<std::vector<double>> states_;
+  tbb::concurrent_vector<Eigen::VectorXd> eigen_states_;
+  tbb::concurrent_vector<std::tuple<Eigen::VectorXd, Eigen::VectorXd>>
+      optim_path_;
+  tbb::concurrent_vector<Eigen::MatrixXd> values_;
+  void clear() {
+    names_.clear();
+    times_.clear();
+    states_.clear();
+    eigen_states_.clear();
+    optim_path_.clear();
+    values_.clear();
+  }
   /**
    * Writes a set of names.
    *
@@ -166,19 +173,39 @@ class in_memory_writer : public stan::callbacks::stream_writer {
   }
   void operator()(
       const std::vector<std::tuple<Eigen::VectorXd, Eigen::VectorXd>>& xx) {
-    optim_path_ = xx;
+    for (auto& x_i : xx) {
+      optim_path_.push_back(x_i);
+    }
   }
   void operator()(const std::tuple<Eigen::VectorXd, Eigen::VectorXd>& xx) {
     optim_path_.push_back(xx);
   }
-  template <typename EigVec, stan::require_eigen_vector_t<EigVec>* = nullptr>
-  void operator()(const EigVec& vals) {
+  void operator()(const Eigen::Matrix<double, -1, 1>& vals) {
     eigen_states_.push_back(vals);
   }
-  template <typename EigMat,
-            stan::require_eigen_matrix_dynamic_t<EigMat>* = nullptr>
-  void operator()(const EigMat& vals) {
-    values_ = vals;
+  void operator()(const Eigen::Matrix<double, 1, -1>& vals) {
+    eigen_states_.push_back(vals);
+  }
+  void operator()(const Eigen::Matrix<double, -1, -1>& vals) {
+    values_.push_back(vals);
+  }
+  inline bool is_valid() const noexcept { return true; }
+  inline auto get_eigen_state_values() const {
+    Eigen::MatrixXd param_vals(eigen_states_.size(), eigen_states_[0].size());
+    for (size_t i = 0; i < eigen_states_.size(); ++i) {
+      param_vals.row(i) = eigen_states_[i];
+    }
+    return param_vals;
+  }
+  inline auto get_values() const {
+    Eigen::MatrixXd param_vals(values_[0].cols(),
+                               values_.size() * values_[0].rows());
+    for (size_t i = 0; i < values_.size(); ++i) {
+      param_vals.block(0, i * values_[i].rows(), values_[i].cols(),
+                       values_[i].rows())
+          = values_[i].transpose();
+    }
+    return param_vals;
   }
 };
 
@@ -491,15 +518,31 @@ Eigen::Matrix<double, 10, 100> eight_schools_r_answer() {
   return r_answer;
 }
 
-std::pair<Eigen::Matrix<double, 10, 1>, Eigen::Matrix<double, 10, 1>>
+std::pair<Eigen::Matrix<double, 1, 10>, Eigen::Matrix<double, 1, 10>>
 normal_glm_param_summary() {
-  Eigen::Matrix<double, 10, 1> mean_param_vals;
+  Eigen::Matrix<double, 1, 10> mean_param_vals;
   mean_param_vals << 20.1766, -7191.17, -3.99891, -2.00917, 0.00428024,
       0.990037, 2.98999, -1.02273, 1.01613, -0.994856;
-  Eigen::Matrix<double, 10, 1> sd_param_vals;
+  Eigen::Matrix<double, 1, 10> sd_param_vals;
   sd_param_vals << 1.83697, 1.85228, 0.0145116, 0.0145324, 0.0136457, 0.0137487,
       0.0144594, 0.0145803, 0.0102204, 0.0146323;
   return {mean_param_vals, sd_param_vals};
+}
+
+template <typename T1>
+inline auto get_mean_sd(T1&& param_vals) {
+  Eigen::RowVectorXd mean_vals = param_vals.colwise().mean().eval();
+  Eigen::RowVectorXd sd_vals = (((param_vals.rowwise() - mean_vals)
+                                     .array()
+                                     .square()
+                                     .matrix()
+                                     .colwise()
+                                     .sum()
+                                     .array()
+                                 / (param_vals.rows() - 1))
+                                    .sqrt())
+                                   .eval();
+  return std::make_pair(mean_vals, sd_vals);
 }
 }  // namespace test
 }  // namespace stan

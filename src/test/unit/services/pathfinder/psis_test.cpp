@@ -154,7 +154,8 @@ TEST(ServicesPSIS, get_psis_weights) {
       0.0138107265625568, 0.0698711068265654, 0.02427066064181,
       0.0387167328144493, 0.392924445274868, 0.0434083032508679,
       0.0217294775126546;
-  stan::test::test_logger warner;
+  std::unique_ptr<std::stringstream> empty_ostream(new std::stringstream{});
+  stan::test::test_logger warner(std::move(empty_ostream));
   auto blah = stan::services::psis::psis_weights(lrms, 20, warner);
   for (Eigen::Index i = 0; i < answer.size(); ++i) {
     EXPECT_FLOAT_EQ(blah(i), answer(i));

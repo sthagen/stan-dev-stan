@@ -336,7 +336,13 @@ class stan_csv_reader {
           boost::trim(line);
           try {
             samples(row, col) = static_cast<double>(std::stold(line));
+            // If the value read is out of the range of representable values by
+            // a long double
           } catch (const std::out_of_range& e) {
+            samples(row, col) = std::numeric_limits<double>::quiet_NaN();
+            // If no conversion could be performed, an invalid_argument
+            // exception is thrown.
+          } catch (const std::invalid_argument& e) {
             samples(row, col) = std::numeric_limits<double>::quiet_NaN();
           }
         }
