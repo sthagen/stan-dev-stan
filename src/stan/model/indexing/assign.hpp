@@ -44,8 +44,7 @@ namespace model {
  */
 
 template <typename Tuple1, typename Tuple2,
-          require_all_t<internal::is_tuple<Tuple1>,
-                        internal::is_tuple<Tuple2>>* = nullptr>
+          math::require_all_tuple_t<Tuple1, Tuple2>* = nullptr>
 inline void assign(Tuple1&& x, Tuple2&& y, const char* name);
 
 /**
@@ -60,7 +59,7 @@ inline void assign(Tuple1&& x, Tuple2&& y, const char* name);
 template <
     typename T, typename U,
     require_t<std::is_assignable<std::decay_t<T>&, std::decay_t<U>>>* = nullptr,
-    require_all_not_t<internal::is_tuple<T>, internal::is_tuple<U>>* = nullptr>
+    math::require_all_not_tuple_t<T, U>* = nullptr>
 inline void assign(T&& x, U&& y, const char* name) {
   internal::assign_impl(x, std::forward<U>(y), name);
 }
@@ -913,9 +912,8 @@ inline constexpr auto make_tuple_seq(std::integer_sequence<T, I...>) {
  * @param y A tuple with elements to be assigned from
  * @param name The name of the tuple to assign to
  */
-template <
-    typename Tuple1, typename Tuple2,
-    require_all_t<internal::is_tuple<Tuple1>, internal::is_tuple<Tuple2>>*>
+template <typename Tuple1, typename Tuple2,
+          math::require_all_tuple_t<Tuple1, Tuple2>*>
 inline void assign(Tuple1&& x, Tuple2&& y, const char* name) {
   constexpr auto t1_size = std::tuple_size<std::decay_t<Tuple1>>::value;
   stan::math::for_each(
