@@ -1197,3 +1197,17 @@ TEST(model_indexing, tuples_non_trivially_assignable) {
       },
       A, B);
 }
+
+TEST(model_indexing, stdvec_of_eigvec_errors) {
+  using stan::model::assign;
+  using stan::model::index_min_max;
+
+  std::vector<Eigen::VectorXd> x(1);
+  x[0] = Eigen::VectorXd(2);
+  x[0] << 1, 2;
+  std::vector<Eigen::VectorXd> y(1);
+  y[0] = Eigen::VectorXd(3);
+  y[0] << 3, 4, 5;
+
+  test_throw_ia(x, y);
+}
