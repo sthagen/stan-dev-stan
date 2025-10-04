@@ -788,16 +788,21 @@ inline auto rvalue(StdVec&& v, const char* name, const Idx1& idx1,
   stan::math::check_greater_or_equal("array[..., ...] indexing", "size",
                                      index_size, 0);
   std::vector<inner_type> result(index_size);
-  if ((std::is_same<std::decay_t<Idx1>, index_min_max>::value
-       || std::is_same<std::decay_t<Idx1>, index_max>::value)
-      && index_size == 0) {
-    return result;
+  constexpr bool is_idx1_minmax_or_max
+      = std::is_same<std::decay_t<Idx1>, index_min_max>::value
+        || std::is_same<std::decay_t<Idx1>, index_max>::value;
+  if constexpr (is_idx1_minmax_or_max) {
+    if (index_size == 0) {
+      return result;
+    }
   }
   for (int i = 0; i < index_size; ++i) {
     const int n = rvalue_at(i, idx1);
     math::check_range("array[..., ...] index", name, v.size(), n);
-    if ((!std::is_same<std::decay_t<Idx1>, index_multi>::value)
-        && std::is_rvalue_reference<StdVec>::value) {
+    constexpr bool is_rvalue_multi_idx
+        = (!std::is_same<std::decay_t<Idx1>, index_multi>::value)
+          && std::is_rvalue_reference<StdVec>::value;
+    if constexpr (is_rvalue_multi_idx) {
       result[i] = rvalue(std::move(v[n - 1]), name, idxs...);
     } else {
       result[i] = rvalue(v[n - 1], name, idxs...);
