@@ -185,14 +185,14 @@ inline auto rvalue(EigVec&& v, const char* name, MultiIndex&& idx) {
 template <typename Vec, require_vector_t<Vec>* = nullptr,
           require_not_std_vector_t<Vec>* = nullptr>
 inline auto rvalue(Vec&& v, const char* name, index_min_max idx) {
-  math::check_range("vector[min_max] min indexing", name, v.size(), idx.min_);
-  const Eigen::Index slice_start = idx.min_ - 1;
   if (idx.max_ >= idx.min_) {
+    math::check_range("vector[min_max] min indexing", name, v.size(), idx.min_);
+    const Eigen::Index slice_start = idx.min_ - 1;
     math::check_range("vector[min_max] max indexing", name, v.size(), idx.max_);
     const Eigen::Index slice_size = idx.max_ - slice_start;
     return v.segment(slice_start, slice_size);
   } else {
-    return v.segment(slice_start, 0);
+    return v.segment(0, 0);
   }
 }
 
@@ -343,14 +343,14 @@ inline auto rvalue(Mat&& x, const char* name, index_max idx) {
  */
 template <typename Mat, require_dense_dynamic_t<Mat>* = nullptr>
 inline auto rvalue(Mat&& x, const char* name, index_min_max idx) {
-  math::check_range("matrix[min_max] min row indexing", name, x.rows(),
-                    idx.min_);
   if (idx.max_ >= idx.min_) {
+    math::check_range("matrix[min_max] min row indexing", name, x.rows(),
+                      idx.min_);
     math::check_range("matrix[min_max] max row indexing", name, x.rows(),
                       idx.max_);
     return x.middleRows(idx.min_ - 1, idx.max_ - idx.min_ + 1);
   } else {
-    return x.middleRows(idx.min_ - 1, 0);
+    return x.middleRows(0, 0);
   }
 }
 
@@ -371,11 +371,11 @@ inline auto rvalue(Mat&& x, const char* name, index_min_max idx) {
 template <typename Mat, require_dense_dynamic_t<Mat>* = nullptr>
 inline auto rvalue(Mat&& x, const char* name, index_min_max row_idx,
                    index_min_max col_idx) {
-  math::check_range("matrix[min_max, min_max] min row indexing", name, x.rows(),
-                    row_idx.min_);
-  math::check_range("matrix[min_max, min_max] min column indexing", name,
-                    x.cols(), col_idx.min_);
   if (row_idx.max_ >= row_idx.min_ && col_idx.max_ >= col_idx.min_) {
+    math::check_range("matrix[min_max, min_max] min row indexing", name,
+                      x.rows(), row_idx.min_);
+    math::check_range("matrix[min_max, min_max] min column indexing", name,
+                      x.cols(), col_idx.min_);
     math::check_range("matrix[min_max, min_max] max row indexing", name,
                       x.rows(), row_idx.max_);
     math::check_range("matrix[min_max, min_max] max column indexing", name,
@@ -384,17 +384,21 @@ inline auto rvalue(Mat&& x, const char* name, index_min_max row_idx,
                    row_idx.max_ - (row_idx.min_ - 1),
                    col_idx.max_ - (col_idx.min_ - 1));
   } else if (row_idx.max_ >= row_idx.min_) {
+    math::check_range("matrix[min_max, min_max] min row indexing", name,
+                      x.rows(), row_idx.min_);
     math::check_range("matrix[min_max, min_max] max row indexing", name,
                       x.rows(), row_idx.max_);
     return x.block(row_idx.min_ - 1, col_idx.min_ - 1,
                    row_idx.max_ - (row_idx.min_ - 1), 0);
   } else if (col_idx.max_ >= col_idx.min_) {
+    math::check_range("matrix[min_max, min_max] min column indexing", name,
+                      x.cols(), col_idx.min_);
     math::check_range("matrix[min_max, min_max] max column indexing", name,
                       x.cols(), col_idx.max_);
     return x.block(row_idx.min_ - 1, col_idx.min_ - 1, 0,
                    col_idx.max_ - (col_idx.min_ - 1));
   } else {
-    return x.block(row_idx.min_ - 1, col_idx.min_ - 1, 0, 0);
+    return x.block(0, 0, 0, 0);
   }
 }
 
@@ -684,16 +688,16 @@ inline auto rvalue(Mat&& x, const char* name, Idx&& row_idx,
 template <typename Mat, typename Idx, require_dense_dynamic_t<Mat>* = nullptr>
 inline auto rvalue(Mat&& x, const char* name, Idx&& row_idx,
                    index_min_max col_idx) {
-  math::check_range("matrix[..., min_max] min column indexing", name, x.cols(),
-                    col_idx.min_);
-  const Eigen::Index col_start = col_idx.min_ - 1;
   if (col_idx.max_ >= col_idx.min_) {
+    math::check_range("matrix[..., min_max] min column indexing", name,
+                      x.cols(), col_idx.min_);
+    const Eigen::Index col_start = col_idx.min_ - 1;
     math::check_range("matrix[..., min_max] max column indexing", name,
                       x.cols(), col_idx.max_);
     return rvalue(x.middleCols(col_start, col_idx.max_ - col_start), name,
                   std::forward<Idx>(row_idx));
   } else {
-    return rvalue(x.middleCols(col_start, 0), name, std::forward<Idx>(row_idx));
+    return rvalue(x.middleCols(0, 0), name, std::forward<Idx>(row_idx));
   }
 }
 
