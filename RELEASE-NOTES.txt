@@ -5,6 +5,14 @@ Note: these are the release notes for the stan-dev/stan repository.
 Further changes may arise at the interface level (stan-dev/{rstan,
 pystan, cmdstan}) and math library level (stan-dev/math).
 
+v2.38.0 (6 January 2026)
+======================================================================
+
+ - Allow `min:max` indexing to always succeed if it is an empty selection. (#3362)
+ - Updated scalar templating in the serializer. (#3355)
+ - Removed the uses of `forward_as` from the stan repo and adds `if constexpr` where possible. (#3357)
+ - Updated Pathfinder writer to avoid indexing past vector length. (#3364)
+
 v2.37.0 (2 September 2025)
 ======================================================================
 
